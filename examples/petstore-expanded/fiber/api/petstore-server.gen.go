@@ -85,7 +85,7 @@ func (siw *ServerInterfaceWrapper) DeletePet(c *fiber.Ctx) error {
 	// ------------- Path parameter "id" -------------
 	var id int64
 
-	err = runtime.BindStyledParameter("simple", false, "id", c.Params("id"), &id)
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
 	}
@@ -101,7 +101,7 @@ func (siw *ServerInterfaceWrapper) FindPetByID(c *fiber.Ctx) error {
 	// ------------- Path parameter "id" -------------
 	var id int64
 
-	err = runtime.BindStyledParameter("simple", false, "id", c.Params("id"), &id)
+	err = runtime.BindStyledParameterWithOptions("simple", "id", c.Params("id"), &id, runtime.BindStyledParameterOptions{Explode: false, Required: true})
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Errorf("Invalid format for parameter id: %w", err).Error())
 	}
@@ -127,7 +127,7 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	}
 
 	for _, m := range options.Middlewares {
-		router.Use(m)
+		router.Use(fiber.Handler(m))
 	}
 
 	router.Get(options.BaseURL+"/pets", wrapper.FindPets)
